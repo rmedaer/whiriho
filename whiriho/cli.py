@@ -68,8 +68,9 @@ def get(ctx, path, **kwargs):
 @main.command()
 @click.argument('path')
 @click.argument('data')
+@click.option('--validate/--no-validate', default=True)
 @click.pass_context
-def set(ctx, path, data, **kwargs):
+def set(ctx, path, data, validate, **kwargs):
     try:
         data = json.loads(data)
     except:
@@ -77,7 +78,7 @@ def set(ctx, path, data, **kwargs):
 
     try:
         ctx.obj.whiriho.load()
-        ctx.obj.whiriho.set_config_data(path, data)
+        ctx.obj.whiriho.set_config_data(path, data, validation=validate)
     except WhirihoException as error:
         ctx.fail(error.message)
 
