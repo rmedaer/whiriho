@@ -23,3 +23,9 @@ class CatalogVersionException(WhirihoException):
     Exception raised when catalog version is not well formatted or not known.
     """
     pass
+
+class CatalogPathException(WhirihoException):
+    """
+    Exception raised when catalog path could not be found.
+    """
+    pass

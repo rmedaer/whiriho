@@ -23,7 +23,7 @@ __whiriho_catalog_v1__ = {
             'additionalProperties': {
                 'type': 'object',
                 'properties': {
-                    'file': {
+                    'uri': {
                         'type': 'string'
                     },
                     'format': {
@@ -40,7 +40,7 @@ __whiriho_catalog_v1__ = {
                     }
                 },
                 'required': [
-                    'file'
+                    'uri'
                 ]
             }
         }

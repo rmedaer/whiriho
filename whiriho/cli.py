@@ -31,15 +31,22 @@ def list(ctx, **kwargs):
     try:
         ctx.obj.whiriho.load()
         for path in ctx.obj.whiriho.get_paths():
-            print path
+            click.echo(path)
     except WhirihoException as error:
         ctx.fail(error.message)
 
 @main.command()
 @click.argument('path')
 @click.pass_context
-def get(ctx, **kwargs):
-    click.echo('Get information about given uri')
+def get(ctx, path, **kwargs):
+    try:
+        ctx.obj.whiriho.load()
+        uri, format, schema = ctx.obj.whiriho.get_config_meta(path)
+        click.echo('URI: %s' % uri)
+        click.echo('Format: %s' % format)
+        click.echo('Schema: %s' % schema)
+    except WhirihoException as error:
+        ctx.fail(error.message)
 
 if __name__ == "__main__":
     main()

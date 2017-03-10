@@ -12,7 +12,8 @@ from .schemas import (
 from .errors import (
     CatalogNotFoundException,
     CatalogFormatException,
-    CatalogVersionException
+    CatalogVersionException,
+    CatalogPathException
 )
 
 class Whiriho(object):
@@ -83,6 +84,31 @@ class Whiriho(object):
         Return the list of catalog paths.
         """
         return self.catalog.keys()
+
+    def get_config_raw(self, path):
+        """
+        Return raw config specs from catalog.
+        """
+        if path not in self.catalog:
+            raise CatalogPathException('Unable to get config path \'%s\'' % path)
+
+        return self.catalog.get(path)
+
+    def get_config_meta(self, path):
+        """
+        Return config metadata for specified path in catalog.
+
+        Arguments:
+        path -- Config path in catalog.
+
+        It returns the following tuple of values:
+        uri -- Configuration URI.
+        format -- Configuration file format (optional, default=None)
+        schema -- Configuration schema URI (optional, default=None)
+        """
+        raw = self.get_config_raw(path)
+
+        return raw.get('uri'), raw.get('format', None), raw.get('schema', None)
 
     def __enter__(self):
         """
