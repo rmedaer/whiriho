@@ -1,0 +1,10 @@
+{
+	"version": "1.0.0",
+	"catalog": {
+		"my-config": {
+			"file": "my-config.json",
+			"format": "json",
+			"schema": "my-schema.json"
+		}
+	}
+}
