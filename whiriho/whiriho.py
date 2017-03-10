@@ -2,6 +2,7 @@
 
 import os
 import anyconfig
+import json
 import jsonschema
 import semantic_version
 import urlparse
@@ -16,8 +17,9 @@ from .errors import (
     CatalogFormatException,
     CatalogVersionException,
     CatalogPathException,
-    ConfigurationUriException,
-    ConfigurationException
+    ConfigurationException,
+    ConfigurationSchemaException,
+    ConfigurationUriException
 )
 
 class Whiriho(object):
@@ -120,6 +122,27 @@ class Whiriho(object):
                 raise ConfigurationException('Failed to read configuration data')
             except anyconfig.backends.UnknownFileTypeError:
                 raise ConfigurationException('Unknown configuration format, cannot parse it')
+        else:
+            raise ConfigurationUriException('Unknown scheme: %s' % scheme)
+
+    def get_config_schema(self, path):
+        """
+        Return configuration schema from specified path in catalog.
+        """
+        _, _, schema = self.get_config_meta(path)
+
+        if not schema:
+            return None
+
+        scheme = Whiriho.parse_scheme(schema)
+
+        if scheme == 'file':
+            try:
+                with open(self.safe_config_path(urlparse.urlparse(schema).path), 'r') as file:
+                    return json.loads(file.read())
+                    # TODO validate schema itself
+            except IOError:
+                raise ConfigurationSchemaException('Failed to read configuration schema')
         else:
             raise ConfigurationUriException('Unknown scheme: %s' % scheme)
 

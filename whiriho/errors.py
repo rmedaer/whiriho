@@ -41,3 +41,10 @@ class ConfigurationException(WhirihoException):
     Exception raised when Whiriho could not read configuration file.
     """
     pass
+
+
+class ConfigurationSchemaException(WhirihoException):
+    """
+    Exception raised when Whiriho could not read or parse configuration schema.
+    """
+    pass

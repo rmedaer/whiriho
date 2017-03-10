@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import click
+import json
 
 from .whiriho import Whiriho
 from .errors import WhirihoException
@@ -55,6 +56,23 @@ def get(ctx, path, **kwargs):
     try:
         ctx.obj.whiriho.load()
         click.echo(ctx.obj.whiriho.get_config_data(path))
+    except WhirihoException as error:
+        ctx.fail(error.message)
+
+@main.command()
+@click.argument('path')
+@click.pass_context
+def schema(ctx, path, **kwargs):
+    try:
+        ctx.obj.whiriho.load()
+        click.echo(
+            json.dumps(
+                ctx.obj.whiriho.get_config_schema(path),
+                sort_keys=True,
+                indent=4,
+                separators=(',', ': ')
+            )
+        )
     except WhirihoException as error:
         ctx.fail(error.message)
 
