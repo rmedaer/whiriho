@@ -19,7 +19,8 @@ from .errors import (
     CatalogPathException,
     ConfigurationException,
     ConfigurationSchemaException,
-    ConfigurationUriException
+    ConfigurationUriException,
+    CatalogInitializationException
 )
 
 class Whiriho(object):
@@ -41,6 +42,26 @@ class Whiriho(object):
         self.allow_unsafe = allow_unsafe
         self.version = None
         self.catalog = None
+
+    def initialize(self, format=None, version='1.0.0', force=False):
+        """
+        Initialize a Whiriho catalog in given version.
+        """
+        version = Whiriho.parse_version(version)
+
+        if version.major == 1:
+            if os.path.exists(self.path) and not force:
+                raise CatalogInitializationException('Catalog already exists: %s' % self.path)
+
+            try:
+                anyconfig.dump({
+                    'version': '1.0.0',
+                    'catalog': {}
+                }, self.path, format, ac_safe=True)
+            except IOError:
+                raise CatalogInitializationException('Failed to initialize catalog: %s' % self.path)
+        else:
+            raise CatalogVersionException('Unkwnon catalog version: %s' % version)
 
     def load(self):
         """
@@ -136,7 +157,7 @@ class Whiriho(object):
         """
 
         uri, format, _ = self.get_config_meta(path)
-        uri = self.safe_config_path((urlparse.urlparse(uri).path))
+        safe_uri = self.safe_config_path((urlparse.urlparse(uri).path))
 
         # Fetch configuration schema if validation enabled
         schema = None
@@ -151,7 +172,10 @@ class Whiriho(object):
             except jsonschema.SchemaError:
                 raise ConfigurationSchemaException('Could not validate data (invalid schema)')
 
-        anyconfig.dump(data, uri, format, ac_safe=True)
+        try:
+            anyconfig.dump(data, safe_uri, format, ac_safe=True)
+        except IOError:
+            raise ConfigurationException('Failed to write configuration file \'%s\'' % uri)
 
     def get_config_schema(self, path):
         """

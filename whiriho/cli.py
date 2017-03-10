@@ -91,5 +91,26 @@ def schema(ctx, path, **kwargs):
     except WhirihoException as error:
         ctx.fail(error.message)
 
+@main.command()
+@click.option(
+    u'--format',
+    help=u'Which file format to use'
+)
+@click.option(
+    u'--version',
+    help=u'Version of catalog format to use',
+    default='1.0.0'
+)
+@click.option(
+    u'--force', is_flag=True,
+    help=u'Force reinitialization if catalog already exists',
+)
+@click.pass_context
+def init(ctx, format, version, force, **kwargs):
+    try:
+        ctx.obj.whiriho.initialize(format, version, force)
+    except WhirihoException as error:
+        ctx.fail(error.message)
+
 if __name__ == "__main__":
     main()

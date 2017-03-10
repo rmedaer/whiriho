@@ -48,3 +48,9 @@ class ConfigurationSchemaException(WhirihoException):
     Exception raised when Whiriho could not read or parse configuration schema.
     """
     pass
+
+class CatalogInitializationException(WhirihoException):
+    """
+    Exception raised when Whiriho could not initialize the catalog.
+    """
+    pass
