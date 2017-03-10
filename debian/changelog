@@ -1,12 +1,6 @@
-.. :changelog:
+python-whiriho (0.1.0) unstable; urgency=low
 
-===============
-Release History
-===============
-
-0.1.0 (2017-03-10)
-------------------
-
+  * Initial Release.
   * Implemented following API calls (as Python module and CLI):
     - List paths available in catalog.
     - Get metadata from given catalog path.
@@ -14,3 +8,5 @@ Release History
     - Get schema (in JSON) from given catalog path.
     - Set configuration data after validation.
     - Initializing a catalog.
+
+ -- Raphael Medaer <raphael@medaer.me>  Fri, 10 Mar 2017 16:14:34 +0100
