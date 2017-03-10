@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 
+import os
 import anyconfig
 import jsonschema
 import semantic_version
+import urlparse
 
 from . import __version__
 from .schemas import (
@@ -13,7 +15,9 @@ from .errors import (
     CatalogNotFoundException,
     CatalogFormatException,
     CatalogVersionException,
-    CatalogPathException
+    CatalogPathException,
+    ConfigurationUriException,
+    ConfigurationException
 )
 
 class Whiriho(object):
@@ -21,7 +25,7 @@ class Whiriho(object):
     Configuration catalog object.
     """
 
-    def __init__(self, path, format=None):
+    def __init__(self, path, format=None, allow_absolute=False, allow_unsafe=False):
         """
         Initialize a Whiriho catalog.
 
@@ -31,21 +35,10 @@ class Whiriho(object):
         """
         self.path = path
         self.forced_format = format
+        self.allow_absolute = allow_absolute
+        self.allow_unsafe = allow_unsafe
         self.version = None
         self.catalog = None
-
-    @staticmethod
-    def parse_version(version):
-        """
-        Parse given version using semantic_version library.
-
-        Arguments:
-        version -- Version string.
-        """
-        try:
-            return semantic_version.Version(version)
-        except ValueError as error:
-            raise CatalogVersionException(error.message)
 
     def load(self):
         """
@@ -110,6 +103,48 @@ class Whiriho(object):
 
         return raw.get('uri'), raw.get('format', None), raw.get('schema', None)
 
+    def get_config_data(self, path):
+        """
+        Return configuration data from specified path in catalog.
+        """
+        uri, format, _ = self.get_config_meta(path)
+        scheme = Whiriho.parse_scheme(uri)
+
+        if scheme == 'file':
+            try:
+                return anyconfig.load(
+                    self.safe_config_path(urlparse.urlparse(uri).path),
+                    ac_parser=format
+                )
+            except IOError:
+                raise ConfigurationException('Failed to read configuration data')
+            except anyconfig.backends.UnknownFileTypeError:
+                raise ConfigurationException('Unknown configuration format, cannot parse it')
+        else:
+            raise ConfigurationUriException('Unknown scheme: %s' % scheme)
+
+    def safe_config_path(self, path):
+        """
+        Create safe path from given file path with Whiriho options.
+        It's using 'allow_unsafe' and 'absolute_path' to refactor input file.
+
+        Arguments:
+        path -- Path of file to review.
+        """
+        # If file has absolute path that we not authorize, raise an error
+        if os.path.isabs(path):
+            if not self.allow_absolute or not self.allow_unsafe:
+                raise ConfigurationUriException('Not authorized to load absolute file')
+        else:
+            # TODO double check needed
+            orig = path
+            dir = os.path.realpath(os.path.dirname(self.path))
+            path = os.path.join(dir, path)
+            if not os.path.realpath(path).startswith(dir) and not self.allow_unsafe:
+                raise ConfigurationUriException('Unsafe path: %s' % orig)
+
+        return path
+
     def __enter__(self):
         """
         Method called when you are using 'with' statement.
@@ -122,3 +157,27 @@ class Whiriho(object):
         Method called when you are using 'with' statement.
         """
         pass
+
+    @staticmethod
+    def parse_scheme(uri):
+        """
+        Parse URI scheme.
+        """
+        scheme = urlparse.urlparse(uri).scheme
+        if not scheme:
+            scheme = 'file'
+
+        return scheme
+
+    @staticmethod
+    def parse_version(version):
+        """
+        Parse given version using semantic_version library.
+
+        Arguments:
+        version -- Version string.
+        """
+        try:
+            return semantic_version.Version(version)
+        except ValueError as error:
+            raise CatalogVersionException(error.message)

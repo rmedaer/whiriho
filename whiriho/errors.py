@@ -29,3 +29,15 @@ class CatalogPathException(WhirihoException):
     Exception raised when catalog path could not be found.
     """
     pass
+
+class ConfigurationUriException(WhirihoException):
+    """
+    Exception raised when Whiriho could not parse configuration URI.
+    """
+    pass
+
+class ConfigurationException(WhirihoException):
+    """
+    Exception raised when Whiriho could not read configuration file.
+    """
+    pass

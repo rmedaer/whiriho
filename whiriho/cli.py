@@ -38,13 +38,23 @@ def list(ctx, **kwargs):
 @main.command()
 @click.argument('path')
 @click.pass_context
-def get(ctx, path, **kwargs):
+def meta(ctx, path, **kwargs):
     try:
         ctx.obj.whiriho.load()
         uri, format, schema = ctx.obj.whiriho.get_config_meta(path)
         click.echo('URI: %s' % uri)
         click.echo('Format: %s' % format)
         click.echo('Schema: %s' % schema)
+    except WhirihoException as error:
+        ctx.fail(error.message)
+
+@main.command()
+@click.argument('path')
+@click.pass_context
+def get(ctx, path, **kwargs):
+    try:
+        ctx.obj.whiriho.load()
+        click.echo(ctx.obj.whiriho.get_config_data(path))
     except WhirihoException as error:
         ctx.fail(error.message)
 
