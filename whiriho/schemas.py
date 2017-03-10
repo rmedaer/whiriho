@@ -27,7 +27,7 @@ __whiriho_catalog_v1__ = {
                         'type': 'string'
                     },
                     'format': {
-                        'enum': ['yaml', 'json', 'ini']
+                        'enum': ['yaml', 'json', 'ini', 'xml']
                     },
                     'schema': {
                         'type': 'string'
