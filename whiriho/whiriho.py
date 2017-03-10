@@ -125,6 +125,34 @@ class Whiriho(object):
         else:
             raise ConfigurationUriException('Unknown scheme: %s' % scheme)
 
+    def set_config_data(self, path, data, validation=True):
+        """
+        Write configuration data file after validation.
+
+        Arguments:
+        path -- Configuration path in catalog.
+        data -- Data to write.
+        validation -- If true, data will be validate first (optional, default=True)
+        """
+
+        uri, format, _ = self.get_config_meta(path)
+        uri = self.safe_config_path((urlparse.urlparse(uri).path))
+
+        # Fetch configuration schema if validation enabled
+        schema = None
+        if validation:
+            schema = self.get_config_schema(path)
+
+        if schema is not None:
+            try:
+                jsonschema.validate(data, schema)
+            except jsonschema.ValidationError as error:
+                raise ConfigurationSchemaException('Data validation failure: %s' % error.message)
+            except jsonschema.SchemaError:
+                raise ConfigurationSchemaException('Could not validate data (invalid schema)')
+
+        anyconfig.dump(data, uri, format, ac_safe=True)
+
     def get_config_schema(self, path):
         """
         Return configuration schema from specified path in catalog.

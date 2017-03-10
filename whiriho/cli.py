@@ -15,6 +15,12 @@ class CLIContext(object):
         self.path = path
         self.whiriho = Whiriho(path, format=format)
 
+def dump(data):
+    """
+    All CLI displayed data, should use this method to format output JSON.
+    """
+    return json.dumps(data, sort_keys=True, indent=4, separators=(',', ': '))
+
 @click.group()
 @click.option(
     u'-c', '--config',
@@ -55,7 +61,23 @@ def meta(ctx, path, **kwargs):
 def get(ctx, path, **kwargs):
     try:
         ctx.obj.whiriho.load()
-        click.echo(ctx.obj.whiriho.get_config_data(path))
+        click.echo(dump(ctx.obj.whiriho.get_config_data(path)))
+    except WhirihoException as error:
+        ctx.fail(error.message)
+
+@main.command()
+@click.argument('path')
+@click.argument('data')
+@click.pass_context
+def set(ctx, path, data, **kwargs):
+    try:
+        data = json.loads(data)
+    except:
+        ctx.fail('Could not read input JSON, check \'data\' argument')
+
+    try:
+        ctx.obj.whiriho.load()
+        ctx.obj.whiriho.set_config_data(path, data)
     except WhirihoException as error:
         ctx.fail(error.message)
 
@@ -65,14 +87,7 @@ def get(ctx, path, **kwargs):
 def schema(ctx, path, **kwargs):
     try:
         ctx.obj.whiriho.load()
-        click.echo(
-            json.dumps(
-                ctx.obj.whiriho.get_config_schema(path),
-                sort_keys=True,
-                indent=4,
-                separators=(',', ': ')
-            )
-        )
+        click.echo(dump(ctx.obj.whiriho.get_config_schema(path)))
     except WhirihoException as error:
         ctx.fail(error.message)
 
