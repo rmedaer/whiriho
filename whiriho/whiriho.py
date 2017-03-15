@@ -88,7 +88,7 @@ class Whiriho(object):
                         self.version
                     )
                 )
-        except jsonschema.ValidationError as error:
+        except (jsonschema.ValidationError, anyconfig.UnknownFileTypeError) as error:
             raise CatalogFormatException('Invalid catalog format: %s' % error.message)
         except jsonschema.SchemaError:
             raise AssertionError('Internal library error; invalid schema')
