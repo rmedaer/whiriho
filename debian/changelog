@@ -1,3 +1,10 @@
+python-whiriho (0.1.1) unstable; urgency=medium
+
+  * Export Whiriho class on package root path.
+  * Handle unknown catalog format.
+
+ -- Raphael Medaer <raphael@medaer.me>  Wed, 15 Mar 2017 15:12:39 +0100
+
 python-whiriho (0.1.0) unstable; urgency=low
 
   * Initial Release.
