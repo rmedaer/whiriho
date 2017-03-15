@@ -4,6 +4,11 @@
 Release History
 ===============
 
+0.1.2 (2017-03-15)
+------------------
+
+  * Order object properties of JSON schemas.
+
 0.1.1 (2017-03-15)
 ------------------
 

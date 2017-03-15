@@ -1,3 +1,9 @@
+python-whiriho (0.1.2) unstable; urgency=medium
+
+  * Order object properties of JSON schemas. 
+
+ -- Raphael Medaer <raphael@medaer.me>  Wed, 15 Mar 2017 15:57:19 +0100
+
 python-whiriho (0.1.1) unstable; urgency=medium
 
   * Export Whiriho class on package root path.

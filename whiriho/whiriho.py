@@ -1,9 +1,13 @@
 # -*- coding: utf-8 -*-
+"""
+Whiriho class module (see Whiriho documentation)
+"""
 
 import os
-import anyconfig
 import json
+import collections
 import jsonschema
+import anyconfig
 import semantic_version
 import urlparse
 
@@ -191,7 +195,7 @@ class Whiriho(object):
         if scheme == 'file':
             try:
                 with open(self.safe_config_path(urlparse.urlparse(schema).path), 'r') as file:
-                    return json.loads(file.read())
+                    return json.loads(file.read(), object_pairs_hook=collections.OrderedDict)
                     # TODO validate schema itself
             except IOError:
                 raise ConfigurationSchemaException('Failed to read configuration schema')
